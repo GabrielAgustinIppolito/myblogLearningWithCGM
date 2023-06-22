@@ -1,0 +1,55 @@
+server:
+  port: 8081
+  #servlet:
+    #
+    #
+spring:
+  application:
+    name: myblog
+  # Configurazione di connessione al db
+  datasource:
+    url: jdbc:mariadb://localhost:3306/myblog_corso?createDatabaseIfNotExist=true&autoReconnect=true&useSLL=false
+    username: root
+    password: tiamoluna
+
+  # Configurazione JPA
+  jpa:
+    hibernate:
+      # Dai commenti abbiamo levato accenti e apici perche rischiamo non compili il yml
+      # Values:
+      # none: non fa nulla. Da utilizzare in produzione!
+      # create-drop: crea le tabelle all avvio dell applicazione e fa un drop del db alla chiusura
+      # update: crea sul db le tabelle se non esistono (o aggiungecampi alle tabelle esistenti):
+      #         in pratica riporto cio che e nuovo e non modifico ciò che e peristente
+      ddl-auto: update
+    properties:
+      dialect: org.hibernate.dialect.MariaDBDialect
+    show-sql: true
+    open-in-view: false
+# Livelli di log
+# posso per esempio mettere debug anzicche info per avere più info su errori
+# livelli sono info - debug - trace - fatal
+logging:
+  level:
+    com.mailgun: trace
+    it.cgmconsulting.myblog: info
+    # Con quello sotto vedo anche i parametri che vengono passati
+    org.hibernate.orm.jdbc.bind: trace
+    org.springframework: info
+
+# CUSTOM PROPERTIES
+app:
+  # JWT Settings
+  jwtSecret: ThisIsTheSecretK3y!
+  jwtExpirationInSeconds: 36000
+  # Comma separated list of allowed origins
+  cors.allowedOrigins: \*
+  mail:
+    sender: gabrielpplt@gmail.com
+    apiKey: ${MAIL_GUN_API_KEY}
+    domain: ${MAIL_GUN_DOMAIN}
+  avatar:
+    size: 10240 #Si esprime in byte
+    width: 100 #pixel
+    height: 100
+    extensions: gif,jpg,jpeg,png #Sara interpretato come un array di stringhe
