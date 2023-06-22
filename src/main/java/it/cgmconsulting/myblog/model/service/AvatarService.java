@@ -38,7 +38,7 @@ public class AvatarService {
                 file.getSize() <= avatarMaxSize;
     }
 
-    private BufferedImage fromMultipartFileBufferedImage(MultipartFile file){
+    protected BufferedImage fromMultipartFileBufferedImage(MultipartFile file){
         BufferedImage bf = null;
         try {
             bf = ImageIO.read(file.getInputStream());

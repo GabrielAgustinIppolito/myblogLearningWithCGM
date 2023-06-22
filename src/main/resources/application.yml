@@ -53,3 +53,10 @@ app:
     width: 100 #pixel
     height: 100
     extensions: gif,jpg,jpeg,png #Sara interpretato come un array di stringhe
+  post:
+    path: /Users/public/myblog/images/
+    size: 204800 #Si esprime in byte
+    width: 2900 #pixel
+    height: 1500
+    extensions: jpg,jpeg
+    maxImages: 3

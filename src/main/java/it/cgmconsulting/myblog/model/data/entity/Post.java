@@ -51,6 +51,10 @@ public class Post extends Creation {
         this.author = author;
     }
 
+    public Post(long id) {
+       this.id = id;
+    }
+
     public void addComment(Comment comment){
         comments.add(comment);
         comment.setPost(this);
