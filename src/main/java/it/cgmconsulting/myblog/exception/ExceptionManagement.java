@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.util.List;
 import java.util.Set;
@@ -55,5 +56,10 @@ public class ExceptionManagement {
 	public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException ex) {
 		return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
 	}
-	
+
+	@ExceptionHandler({MissingServletRequestPartException.class})
+	public ResponseEntity<String> handleMissingServletRequestPartException(MissingServletRequestPartException ex){
+		return new ResponseEntity<String>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+	}
+
 }

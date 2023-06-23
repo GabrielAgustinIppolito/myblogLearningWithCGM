@@ -23,7 +23,6 @@ public class Reporting extends CreationUpdate {
             @JoinColumn(name="reason", referencedColumnName="reason", nullable = false),
             @JoinColumn(name="start_date", referencedColumnName="startDate", nullable = false)
     } )
-//    @JoinColumn(name = "reason", nullable = false)
     private Reason reason;
 
     @Enumerated(EnumType.STRING)
