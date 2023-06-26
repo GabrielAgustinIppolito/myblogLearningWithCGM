@@ -58,4 +58,38 @@ public class PostController {
     public ResponseEntity<?> removeAllCategories(@PathVariable long postId) {
         return postService.removeAllCategories(postId);
     }
+
+    @GetMapping("public/get-boxes")
+    public ResponseEntity<?> getBoxes(@RequestParam(defaultValue = "0") int pageNumber,
+                                      @RequestParam(defaultValue = "3")  int pageSize,
+                                      @RequestParam(defaultValue = "DESC")  String direction,
+                                      @RequestParam(defaultValue = "publishedAt")  String sortBy,
+                                      @RequestParam(defaultValue = "PRE") String imagePosition) {
+        return postService.getPostBoxes(pageNumber, pageSize, direction, sortBy, imagePosition);
+    }
+
+    @GetMapping("public/{postId}")
+    public ResponseEntity<?> getPostDetail(@PathVariable long postId,
+                                           @RequestParam(defaultValue = "HDR") String imagePosition) {
+        return postService.getPostDetail(postId, imagePosition);
+    }
+
+    @GetMapping("public/get-posts-by-category")
+    public ResponseEntity<?> getPostByCategory(@RequestParam String categoryName,
+                                               @RequestParam(defaultValue = "HDR") String imagePosition) {
+        return postService.getPostByCategory(categoryName, imagePosition);
+    }
+
+    @GetMapping("public/get-posts-by-keyword")
+    public ResponseEntity<?> getPostByKeyword(@RequestParam String keyword,
+                                              @RequestParam(defaultValue = "false") boolean isCaseSensitive,
+                                              @RequestParam(defaultValue = "false") boolean isExactMatch
+                                              ) {
+        return postService.getPostByKeyword(keyword, isCaseSensitive, isExactMatch);
+        // La parola è da ricercare sia nel titolo che nell' overview che nel content
+        // Ricerca case-sensitive
+        // Ricerca parola esatta: se cerco 'corda' deve essere escluso 'cordata', 'ricorda'
+        // return List<PostBoxesResponse>
+    }
+
 }

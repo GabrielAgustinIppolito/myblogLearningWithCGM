@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Set;
 
 @RestController
 @RequestMapping("post-image")
@@ -30,12 +31,12 @@ public class PostImageController {
         );
     }
 
-//    @DeleteMapping("{postId}")
-//    @PreAuthorize("hasRole('ROLE_WRITER')")
-//    public ResponseEntity<?> deleteImagesFromPost(@PathVariable long postId,
-//                                                  @RequestBody Set <String> filesToDelete){
-//        return postImageService.delete(postId, filesToDelete);
-//    }
+    @DeleteMapping("{postId}")
+    @PreAuthorize("hasRole('ROLE_WRITER')")
+    public ResponseEntity<?> deleteImagesFromPost(@PathVariable long postId,
+                                                  @RequestBody Set<String> filesToDelete){
+        return postImageService.delete(postId, filesToDelete);
+    }
 
 //    @PostMapping("update/{postId}")
 //    @PreAuthorize("hasRole('ROLE_WRITER')")

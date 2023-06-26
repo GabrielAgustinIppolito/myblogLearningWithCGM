@@ -1,7 +1,6 @@
 package it.cgmconsulting.myblog.model.repository;
 
 import it.cgmconsulting.myblog.model.data.entity.Category;
-import jakarta.persistence.SecondaryTable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

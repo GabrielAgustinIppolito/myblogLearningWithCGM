@@ -1,14 +1,21 @@
 package it.cgmconsulting.myblog.model.service;
 
 import it.cgmconsulting.myblog.exception.ResourceNotFoundException;
+import it.cgmconsulting.myblog.model.data.common.ImagePosition;
 import it.cgmconsulting.myblog.model.data.entity.Category;
 import it.cgmconsulting.myblog.model.data.entity.Post;
 import it.cgmconsulting.myblog.model.data.entity.User;
 import it.cgmconsulting.myblog.model.data.payload.request.PostRequest;
+import it.cgmconsulting.myblog.model.data.payload.response.PostBoxesResponse;
+import it.cgmconsulting.myblog.model.data.payload.response.PostSearchResponse;
 import it.cgmconsulting.myblog.model.repository.CategoryRepository;
 import it.cgmconsulting.myblog.model.repository.PostRepository;
 import it.cgmconsulting.myblog.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,7 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -114,5 +122,69 @@ public class PostService {
                 () -> new ResourceNotFoundException("Post", "id", postId)
         );
         return p;
+    }
+
+    public ResponseEntity<?> getPostBoxes(int pageNumber, int pageSize, String direction,
+                                          String sortBy, String imagePosition){
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.Direction.valueOf(direction.toUpperCase()), sortBy);
+        Page<PostBoxesResponse> result = postRepo.getPostBoxes(pageable, LocalDateTime.now(), ImagePosition.valueOf(imagePosition));
+        List<PostBoxesResponse> list = new ArrayList<>();
+        if(result.hasContent()){
+            list = result.getContent();
+            for(PostBoxesResponse pbr : list){
+                pbr.setCategories(postRepo.getCategoriesByPost(pbr.getPostId()));
+            }
+        }
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+    public ResponseEntity<?> getPostDetail(long postId, String imagePosition){
+        return new ResponseEntity<>(postRepo.getPostDetail(postId, ImagePosition.valueOf(imagePosition),
+                LocalDateTime.now()), HttpStatus.OK);
+
+    }
+
+    public ResponseEntity<?> getPostByCategory(String categoryName, String imagePosition) {
+        List<PostBoxesResponse> list = postRepo.getPostByCategory(categoryName, LocalDateTime.now(),
+                                                                    ImagePosition.valueOf(imagePosition ));
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getPostByKeyword(String keyword, boolean isCaseSensitive, boolean isExactMatch) {
+        List<PostSearchResponse> list = postRepo.getPostContainsAnywhere(keyword, LocalDateTime.now());
+        if (!isCaseSensitive && !isExactMatch) {
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        }else if (!isCaseSensitive && isExactMatch) {
+            List<PostSearchResponse> result = list.stream().filter(psr ->
+                        ( isIgnoringCaseExactMacthing(psr.getTitle(),keyword)
+                       || isIgnoringCaseExactMacthing(psr.getOverview(),keyword)
+                       || isIgnoringCaseExactMacthing(psr.getContent(),keyword))).toList()
+            ;
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }else if (isCaseSensitive && !isExactMatch) {
+            List<PostSearchResponse> result = list.stream().filter(psr ->
+                            (psr.getTitle().contains(keyword)
+                            || psr.getOverview().contains(keyword)
+                            ||psr.getContent().contains(keyword))).toList();
+                    ;
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } else {
+            List<PostSearchResponse> result = list.stream().filter(psr ->
+                    ((psr.getTitle().contains(keyword) && isIgnoringCaseExactMacthing(psr.getTitle(),keyword))
+                  || (psr.getOverview().contains(keyword) && isIgnoringCaseExactMacthing(psr.getOverview(),keyword))
+                  || (psr.getContent().contains(keyword)) && isIgnoringCaseExactMacthing(psr.getContent(),keyword))
+            ).toList();
+            ;
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+    }
+
+    private boolean isIgnoringCaseExactMacthing(String toEvaluate, String keyword){
+        return toEvaluate.matches("(?i)" + keyword + " .*")
+            || toEvaluate.matches("(?i).* " + keyword + " .*")
+            || toEvaluate.matches("(?i).* " + keyword)
+            || toEvaluate.matches("(?i).* " + keyword + "\\R.*")
+            || toEvaluate.matches("(?i).*\\R" + keyword + "\\R.*")
+            || toEvaluate.matches("(?i).*\\R" + keyword + " .*")
+            || toEvaluate.matches("(?i).*\\R " + keyword);
     }
 }
