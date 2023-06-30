@@ -2,6 +2,7 @@ package it.cgmconsulting.myblog.model.repository;
 
 import it.cgmconsulting.myblog.model.data.entity.Avatar;
 import it.cgmconsulting.myblog.model.data.entity.User;
+import it.cgmconsulting.myblog.model.data.payload.response.AuthorResponse;
 import it.cgmconsulting.myblog.model.data.payload.response.GetMeResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -40,4 +42,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "LEFT JOIN Avatar a ON a.avatarId.user.id = u.id " +
             "WHERE u.id = :id ")
     GetMeResponse getMe(@Param("id") long id);
+
+    @Query(value = """
+                   SELECT new it.cgmconsulting.myblog.model.data.payload.response.AuthorResponse(
+                   u.id, 
+                   u.username, 
+                   a.filename, 
+                   a.filetype, 
+                   a.data, 
+                   u.bio, 
+                   (SELECT COUNT(p.id) FROM Post p WHERE p.author.id = u.id
+                   AND (p.publishedAt IS NOT NULL AND p.publishedAt < :now )) as writtenPost
+                   ) FROM User u 
+                   LEFT JOIN Avatar a ON a.avatarId.user.id = u.id 
+                   INNER JOIN u.authorities auth 
+                   WHERE auth.authorityName = :authorityName 
+                   """)
+    List<AuthorResponse> getUsersByAuthority(@Param("authorityName") String authorityName,
+                                             @Param("now") LocalDateTime now);
 }

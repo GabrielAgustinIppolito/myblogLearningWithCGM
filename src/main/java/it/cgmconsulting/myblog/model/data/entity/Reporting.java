@@ -20,8 +20,8 @@ public class Reporting extends CreationUpdate {
 
     @ManyToOne
     @JoinColumns( {
-            @JoinColumn(name="reason", referencedColumnName="reason", nullable = false),
-            @JoinColumn(name="start_date", referencedColumnName="startDate", nullable = false)
+            @JoinColumn(name="reason", referencedColumnName="reason"),
+            @JoinColumn(name="start_date", referencedColumnName="startDate")
     } )
     private Reason reason;
 
@@ -36,6 +36,10 @@ public class Reporting extends CreationUpdate {
         this.reportingId = reportingId;
         this.user = user;
         this.reason = reason;
+    }
+
+    public Reporting(ReportingId reportingId) {
+        this.reportingId = reportingId;
     }
 
     @Override

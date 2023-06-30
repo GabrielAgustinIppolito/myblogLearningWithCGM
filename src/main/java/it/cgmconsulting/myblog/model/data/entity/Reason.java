@@ -3,10 +3,7 @@ package it.cgmconsulting.myblog.model.data.entity;
 import it.cgmconsulting.myblog.model.data.EmbeddablesId.ReasonId;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.Check;
 
 import java.time.LocalDate;
@@ -25,6 +22,11 @@ public class Reason {
 
     public Reason(ReasonId reasonId) {
         this.reasonId = reasonId;
+    }
+
+    public Reason(ReasonId reasonId, int severity) {
+        this.reasonId = reasonId;
+        this.severity = severity;
     }
 
     @Override

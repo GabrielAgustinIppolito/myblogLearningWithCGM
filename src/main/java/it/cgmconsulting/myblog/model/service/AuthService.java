@@ -184,4 +184,9 @@ public class AuthService {
     public ResponseEntity<?> getMe(UserPrincipal principal) {
         return new ResponseEntity<>(userRepository.getMe(principal.getId()), HttpStatus.OK);
     }
+
+    public ResponseEntity<?> getAllAuthors(String authorityName) {
+        return new ResponseEntity<>(userRepository.getUsersByAuthority(authorityName,
+                LocalDateTime.now()), HttpStatus.OK);
+    }
 }

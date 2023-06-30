@@ -22,7 +22,6 @@ spring:
       # update: crea sul db le tabelle se non esistono (o aggiungecampi alle tabelle esistenti):
       #         in pratica riporto cio che e nuovo e non modifico ciò che e peristente
       ddl-auto: update
-      debug: true
     properties:
       dialect: org.hibernate.dialect.MariaDBDialect
     show-sql: true

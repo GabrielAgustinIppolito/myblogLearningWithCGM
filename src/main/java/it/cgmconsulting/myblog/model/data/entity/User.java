@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -35,6 +36,8 @@ public class User extends CreationUpdate {
     private String bio;
 
     private String confirmCode;
+
+    private LocalDateTime bannedUntil;
 
     @ManyToMany
     @JoinTable(name = "user_authority",

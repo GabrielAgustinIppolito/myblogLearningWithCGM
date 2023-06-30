@@ -58,4 +58,9 @@ public class UserController {
         return authService.getMe(principal);
     }
 
+    @GetMapping("public/get-authors")
+    public ResponseEntity<?> getAllAuthors(@RequestParam(defaultValue = "ROLE_WRITER") String authorityName){
+        return authService.getAllAuthors(authorityName);
+    }
+
 }

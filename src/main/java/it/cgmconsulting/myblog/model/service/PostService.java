@@ -16,11 +16,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -151,31 +154,31 @@ public class PostService {
 
     public ResponseEntity<?> getPostByKeyword(String keyword, boolean isCaseSensitive, boolean isExactMatch) {
         List<PostSearchResponse> list = postRepo.getPostContainsAnywhere(keyword, LocalDateTime.now());
+        // La parola è da ricercare sia nel titolo che nell' overview che nel content
+        List<PostSearchResponse> result = new ArrayList<>();
         if (!isCaseSensitive && !isExactMatch) {
-            return new ResponseEntity<>(list, HttpStatus.OK);
+            result = list;
+        // Ricerca parola esatta: se cerco 'corda' deve essere escluso 'cordata', 'ricorda'
         }else if (!isCaseSensitive && isExactMatch) {
-            List<PostSearchResponse> result = list.stream().filter(psr ->
-                        ( isIgnoringCaseExactMacthing(psr.getTitle(),keyword)
-                       || isIgnoringCaseExactMacthing(psr.getOverview(),keyword)
-                       || isIgnoringCaseExactMacthing(psr.getContent(),keyword))).toList()
+            result = list.stream().filter(psr ->
+                        ( isIgnoringCaseExactMacthing(psr.getTitle().concat(" ").concat(psr.getOverview()).
+                                concat(" ").concat(psr.getContent()),keyword))).toList()
             ;
-            return new ResponseEntity<>(result, HttpStatus.OK);
+        // Ricerca case-sensitive
         }else if (isCaseSensitive && !isExactMatch) {
-            List<PostSearchResponse> result = list.stream().filter(psr ->
-                            (psr.getTitle().contains(keyword)
-                            || psr.getOverview().contains(keyword)
-                            ||psr.getContent().contains(keyword))).toList();
+            result = list.stream().filter(psr ->
+                            (psr.getTitle().concat(" ").concat(psr.getOverview()).
+                                    concat(" ").concat(psr.getContent()).contains(keyword))).toList();
                     ;
-            return new ResponseEntity<>(result, HttpStatus.OK);
         } else {
-            List<PostSearchResponse> result = list.stream().filter(psr ->
-                    ((psr.getTitle().contains(keyword) && isIgnoringCaseExactMacthing(psr.getTitle(),keyword))
-                  || (psr.getOverview().contains(keyword) && isIgnoringCaseExactMacthing(psr.getOverview(),keyword))
-                  || (psr.getContent().contains(keyword)) && isIgnoringCaseExactMacthing(psr.getContent(),keyword))
-            ).toList();
-            ;
-            return new ResponseEntity<>(result, HttpStatus.OK);
+            result = list.stream().filter(psr ->
+                    ((psr.getTitle().concat(" ").concat(psr.getOverview()).
+                            concat(" ").concat(psr.getContent()).contains(keyword)
+                            && isIgnoringCaseExactMacthing(psr.getTitle().concat(" ").concat(psr.getOverview()).
+                            concat(" ").concat(psr.getContent()),keyword)))).toList();
+
         }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     private boolean isIgnoringCaseExactMacthing(String toEvaluate, String keyword){
@@ -186,5 +189,18 @@ public class PostService {
             || toEvaluate.matches("(?i).*\\R" + keyword + "\\R.*")
             || toEvaluate.matches("(?i).*\\R" + keyword + " .*")
             || toEvaluate.matches("(?i).*\\R " + keyword);
+    }
+
+    public ResponseEntity<?> getPostByAuthor(String author) {
+        return new ResponseEntity<>( postRepo.getPostByAuthor(author, LocalDateTime.now(), ImagePosition.PRE)
+                , HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getMostRatedInPeriod(LocalDate start, LocalDate end) {
+        LocalDateTime initial = LocalDateTime.now();
+        LocalDateTime s = start != null ? start.atStartOfDay() : initial.withDayOfMonth(1);
+        LocalDateTime e = end != null ? end.atStartOfDay() : initial.withDayOfMonth(initial.toLocalDate().lengthOfMonth());
+        return new ResponseEntity<>( postRepo.getMostRatedInPeriod(s, e, LocalDateTime.now())
+                , HttpStatus.OK);
     }
 }

@@ -11,4 +11,7 @@ public class ReportingId implements Serializable {
         @OneToOne
         @JoinColumn(name = "comment_id", nullable = false)
         private Comment comment;
+
+
+
 }

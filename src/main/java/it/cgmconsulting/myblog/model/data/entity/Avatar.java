@@ -26,6 +26,12 @@ public class Avatar {
     @Column(nullable = false, columnDefinition = "BLOB") //, columnDefinition = "BLOB") --> aumenta la dimensione
     private byte[] data;
 
+    public Avatar(String filename, String filetype, byte[] data) {
+        this.filename = filename;
+        this.filetype = filetype;
+        this.data = data;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

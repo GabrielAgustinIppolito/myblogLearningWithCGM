@@ -2,9 +2,7 @@ package it.cgmconsulting.myblog.model.repository;
 
 import it.cgmconsulting.myblog.model.data.common.ImagePosition;
 import it.cgmconsulting.myblog.model.data.entity.Post;
-import it.cgmconsulting.myblog.model.data.payload.response.PostBoxesResponse;
-import it.cgmconsulting.myblog.model.data.payload.response.PostDetailResponse;
-import it.cgmconsulting.myblog.model.data.payload.response.PostSearchResponse;
+import it.cgmconsulting.myblog.model.data.payload.response.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -82,7 +80,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                 WHERE cat.visible = true AND cat.categoryName = :categoryName
                 AND p.publishedAt IS NOT NULL AND p.publishedAt < :now
                 ORDER BY p.publishedAt DESC
-                """)
+                """
+                )
     List<PostBoxesResponse> getPostByCategory(@Param("categoryName") String categoryName,
                                               @Param("now") LocalDateTime now,
                                               @Param("imagePosition") ImagePosition imagePosition);
@@ -104,7 +103,60 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                    AND p.publishedAt IS NOT NULL
                    AND p.publishedAt < :now
                    ORDER BY p.publishedAt DESC
-                   """)
+                   """
+                   )
     List<PostSearchResponse> getPostContainsAnywhere(@Param("keyword")String keyword,
                                                      @Param("now") LocalDateTime now);
+
+    @Query(value = """
+                SELECT new it.cgmconsulting.myblog.model.data.payload.response.PostBoxesResponse
+                (
+                p.id, 
+                (SELECT pi.postImageId.filename FROM PostImage pi 
+                WHERE pi.postImageId.post.id = p.id AND 
+                pi.imagePosition = :imagePosition) as image, 
+                p.author.username, 
+                p.publishedAt, 
+                p.title, 
+                p.overview) 
+                FROM Post p
+                WHERE p.author.username = :author
+                AND p.publishedAt IS NOT NULL AND p.publishedAt < :now
+                ORDER BY p.publishedAt DESC
+                """
+    )
+    List<PostBoxesResponse> getPostByAuthor(  @Param("author") String author,
+                                              @Param("now") LocalDateTime now,
+                                              @Param("imagePosition") ImagePosition imagePosition);
+
+    @Query(value = """
+                   SELECT new it.cgmconsulting.myblog.model.data.payload.response.BestRatedPost(
+                   r.ratingId.post.id, 
+                   r.ratingId.post.title, 
+                   ROUND(AVG(r.rate),2) as media
+                   ) FROM Rating r
+                   WHERE r.updatedAt >= :start
+                   AND r.updatedAt <= :end
+                   AND r.ratingId.post.publishedAt IS NOT NULL AND r.ratingId.post.publishedAt < :now
+                   GROUP BY r.ratingId.post.id, r.ratingId.post.title
+                   ORDER BY media DESC
+                   """)
+    List<BestRatedPost> getMostRatedInPeriod(@Param("start") LocalDateTime start,
+                                             @Param("end") LocalDateTime end,
+                                             @Param("now") LocalDateTime now);
+
 }
+//    AND r.ratingId.post.publishedAt IS NOT NULL AND p.publishedAt < :now
+//
+//"""
+//                   SELECT new it.cgmconsulting.myblog.model.data.payload.response.BestRatedPost(
+//                   p.id,
+//                   p.title,
+//                   AVG(r.rate) as ra
+//                   ) FROM Post p
+//                   INNER JOIN Rating r
+//                   WHERE r.ratingId.post.id = p.id
+//                   AND r.updatedAt >= :start
+//                   AND r.updatedAt <= :end
+//                   ORDER BY ra DESC
+//                   """)

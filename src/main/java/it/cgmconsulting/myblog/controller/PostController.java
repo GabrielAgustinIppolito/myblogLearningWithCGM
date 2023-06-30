@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 
@@ -86,10 +88,17 @@ public class PostController {
                                               @RequestParam(defaultValue = "false") boolean isExactMatch
                                               ) {
         return postService.getPostByKeyword(keyword, isCaseSensitive, isExactMatch);
-        // La parola è da ricercare sia nel titolo che nell' overview che nel content
-        // Ricerca case-sensitive
-        // Ricerca parola esatta: se cerco 'corda' deve essere escluso 'cordata', 'ricorda'
-        // return List<PostBoxesResponse>
+    }
+
+    @GetMapping("public/get-posts-by-author")
+    public ResponseEntity<?> getPostByAuthor(@RequestParam String author){
+        return postService.getPostByAuthor(author);
+    }
+
+    @GetMapping("public/get-most-rated-in-period")
+    public ResponseEntity<?> getMostRatedInPeriod(@RequestParam(required = false) LocalDate start,
+                                                  @RequestParam(required = false) LocalDate end){
+        return postService.getMostRatedInPeriod(start, end);
     }
 
 }

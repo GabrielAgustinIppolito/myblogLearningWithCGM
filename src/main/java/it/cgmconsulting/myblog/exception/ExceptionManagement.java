@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.util.List;
@@ -60,6 +61,11 @@ public class ExceptionManagement {
 	@ExceptionHandler({MissingServletRequestPartException.class})
 	public ResponseEntity<String> handleMissingServletRequestPartException(MissingServletRequestPartException ex){
 		return new ResponseEntity<String>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler({MethodArgumentTypeMismatchException.class})
+	public ResponseEntity<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex){
+		return new ResponseEntity<String>("Data non valida", HttpStatus.BAD_REQUEST);
 	}
 
 }

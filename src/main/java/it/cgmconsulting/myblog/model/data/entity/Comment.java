@@ -40,6 +40,10 @@ public class Comment extends Creation {
         this.comment = comment;
     }
 
+    public Comment(long id) {
+        this.id = id;
+    }
+
     public Comment(Post post, User author, String comment, Comment parent) {
         this.post = post;
         this.author = author;
