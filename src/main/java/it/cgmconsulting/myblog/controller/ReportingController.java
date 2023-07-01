@@ -1,6 +1,9 @@
 package it.cgmconsulting.myblog.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import it.cgmconsulting.myblog.model.data.common.ReportingStatus;
 import it.cgmconsulting.myblog.model.data.payload.request.ReportingRequest;
+import it.cgmconsulting.myblog.model.service.RatingService;
 import it.cgmconsulting.myblog.model.service.ReportingService;
 import it.cgmconsulting.myblog.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("reporting")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = "myBlogSecurityScheme")
 public class ReportingController {
 
     private final ReportingService reportingService;
@@ -34,6 +38,11 @@ public class ReportingController {
                                              @RequestParam(required = false) String reason,
                                              @RequestParam String status){
         return reportingService.manageReporting(commentId,reason, status);
+    }
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ResponseEntity<?> getReporting(@RequestParam(defaultValue = "OPEN") ReportingStatus status){
+        return reportingService.getReporting(status);
     }
 
 }

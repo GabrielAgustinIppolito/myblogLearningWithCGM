@@ -1,6 +1,7 @@
 package it.cgmconsulting.myblog.controller;
 
 import feign.Response;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.cgmconsulting.myblog.model.data.entity.Reason;
 import it.cgmconsulting.myblog.model.data.payload.request.ReasonRequest;
 import it.cgmconsulting.myblog.model.service.ReasonService;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 @RequestMapping("reason")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = "myBlogSecurityScheme")
 public class ReasonController {
 
     private final ReasonService reasonService;

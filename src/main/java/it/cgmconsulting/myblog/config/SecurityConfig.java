@@ -62,7 +62,8 @@ public class SecurityConfig {
                     "/public/**", "/public/*",
                     "/{pathvariable:[0-9A-Za-z]+}/public/**",
                     "/{pathvariable:[0-9A-Za-z]+}/public/*",
-                    "/v3/api-docs/*", "/v3/api-docs", "/swagger-ui/*", "/swagger-ui/index.html",
+                    "/v3/api-docs/*", "/v3/api-docs",
+                    "/swagger-ui/*", "/swagger-ui/index.html", // per le applicazioni swagger, tuttavia per i token serve notazionein main
                     "/actuator", "/actuator/*", "/actuator/**")
                 .permitAll()
             .anyRequest()

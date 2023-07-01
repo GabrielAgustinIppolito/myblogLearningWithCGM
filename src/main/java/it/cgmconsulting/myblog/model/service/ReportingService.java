@@ -57,8 +57,8 @@ public class ReportingService {
     public ResponseEntity<?> manageReporting(long commentId, String reason, String status) {
         /*
             Cambi di status
-                OPEN -> IN_PROGRESS, CLOESD_WITH_BAN, CLOSED_WITHOUT_BAN, PERMABAN
-                IN_PROGRESS -> CLOESD_WITH_BAN, CLOSED_WITHOUT_BAN, PERMABAN
+                OPEN -> IN_PROGRESS, CLOESD_WITH_BAN, CLOSED_WITHOUT_BAN
+                IN_PROGRESS -> CLOESD_WITH_BAN, CLOSED_WITHOUT_BAN
             Una volta che la segnalazione viene chiusa (con o senza ban) non é più modificabile
         */
 
@@ -75,8 +75,7 @@ public class ReportingService {
         } else
             r = reporting.get().getReason();
         if(reporting.get().getStatus().equals(ReportingStatus.CLOSED_WITH_BAN) ||
-                reporting.get().getStatus().equals(ReportingStatus.CLOSED_WITHOUT_BAN) ||
-                reporting.get().getStatus().equals(ReportingStatus.PERMABAN))
+                reporting.get().getStatus().equals(ReportingStatus.CLOSED_WITHOUT_BAN))
             return new ResponseEntity<>("This reporting is already closed", HttpStatus.FORBIDDEN);
         if (ReportingStatus.valueOf(status).equals(reporting.get().getStatus()))
             return new ResponseEntity<>("Please change status", HttpStatus.FORBIDDEN);
@@ -84,8 +83,7 @@ public class ReportingService {
                 equals(ReportingStatus.IN_PROGRESS))
             return new ResponseEntity<>("Cannot revert status to OPEN", HttpStatus.FORBIDDEN);
 
-            if(ReportingStatus.valueOf(status).equals(ReportingStatus.CLOSED_WITH_BAN) ||
-                            ReportingStatus.valueOf(status).equals(ReportingStatus.PERMABAN)){
+            if(ReportingStatus.valueOf(status).equals(ReportingStatus.CLOSED_WITH_BAN)){
                 /* Censuro il commento e disabilito lo user */
                 reporting.get().getReportingId().getComment().setCensored(true);
                 reporting.get().getReportingId().getComment().getAuthor().setEnabled(false);
@@ -96,5 +94,9 @@ public class ReportingService {
             reporting.get().setReason(r);
 
         return new ResponseEntity<>("Reporting Updated!", HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getReporting(ReportingStatus status) {
+        return new ResponseEntity<>(repo.getReportingsByStatus(status), HttpStatus.OK);
     }
 }

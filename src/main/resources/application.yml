@@ -37,6 +37,11 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
     org.springframework: info
 
+# Enable/Disable spring-doc
+spring-doc:
+  swagger-ui:
+    enabled: true
+
 # CUSTOM PROPERTIES
 app:
   # JWT Settings

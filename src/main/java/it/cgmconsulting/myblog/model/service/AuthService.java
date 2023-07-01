@@ -115,6 +115,18 @@ public class AuthService {
                 .orElseThrow(
                         () -> new ResourceNotFoundException("User", "confirmCode", request.getUsernameOrEmail())
                 );
+
+        /* VERIFICO SE bannedUntil è VALORIZZATO e se la data è SCADUTA o meno */
+        if(u.getBannedUntil() != null){
+               if( u.getBannedUntil().isBefore(LocalDateTime.now())){
+                    u.setEnabled(true);
+                    u.setBannedUntil(null);
+                    userRepository.save(u);
+               } else {
+                    return new ResponseEntity<>("you are banned until" + u.getBannedUntil(), HttpStatus.UNAUTHORIZED);
+               }
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), u.getPassword())) {
             return new ResponseEntity<>("Wrong username or password", HttpStatus.FORBIDDEN);
         }
@@ -189,4 +201,6 @@ public class AuthService {
         return new ResponseEntity<>(userRepository.getUsersByAuthority(authorityName,
                 LocalDateTime.now()), HttpStatus.OK);
     }
+
+
 }

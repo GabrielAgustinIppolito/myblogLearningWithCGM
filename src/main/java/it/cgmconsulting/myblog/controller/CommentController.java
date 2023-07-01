@@ -1,5 +1,6 @@
 package it.cgmconsulting.myblog.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.cgmconsulting.myblog.model.data.payload.request.CommentRequest;
 import it.cgmconsulting.myblog.model.service.CommentService;
 import it.cgmconsulting.myblog.security.UserPrincipal;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("comment")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = "myBlogSecurityScheme")
 public class CommentController {
 
     private final CommentService commentService;

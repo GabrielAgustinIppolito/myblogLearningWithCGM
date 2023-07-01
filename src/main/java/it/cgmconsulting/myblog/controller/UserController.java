@@ -1,5 +1,6 @@
 package it.cgmconsulting.myblog.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.cgmconsulting.myblog.model.data.payload.request.ChangePwdRequest;
 import it.cgmconsulting.myblog.model.data.payload.request.ChangeRoleRequest;
 import it.cgmconsulting.myblog.model.data.payload.request.UpdateMeRequest;
@@ -22,6 +23,7 @@ import java.io.IOException;
 @RequestMapping("user")
 @RequiredArgsConstructor
 @Validated
+@SecurityRequirement(name = "myBlogSecurityScheme")
 public class UserController {
 
     private final AuthService authService;
@@ -49,7 +51,7 @@ public class UserController {
 
     @PostMapping(value = "avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> avatar(@AuthenticationPrincipal UserPrincipal principal,
-                                      @RequestParam MultipartFile file) throws IOException {
+                                      @RequestParam MultipartFile file) throws IOException { //per il file singolo, per array RequestPart
         return avatarService.avatar(file, principal);
     }
 
@@ -62,5 +64,6 @@ public class UserController {
     public ResponseEntity<?> getAllAuthors(@RequestParam(defaultValue = "ROLE_WRITER") String authorityName){
         return authService.getAllAuthors(authorityName);
     }
+
 
 }

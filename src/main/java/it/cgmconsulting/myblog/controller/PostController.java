@@ -1,12 +1,16 @@
 package it.cgmconsulting.myblog.controller;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.cgmconsulting.myblog.model.data.payload.request.PostRequest;
 import it.cgmconsulting.myblog.model.service.PostService;
 import it.cgmconsulting.myblog.security.UserPrincipal;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +25,8 @@ import java.util.Set;
 @RestController
 @RequestMapping("post")
 @RequiredArgsConstructor
+@Slf4j
+@SecurityRequirement(name = "myBlogSecurityScheme")
 public class PostController {
 
     private final PostService postService;
@@ -40,6 +46,7 @@ public class PostController {
         return postService.updatePost(postId, request, principal);
     }
 
+    @CacheEvict(value = "postByCategories", allEntries = true)
     @PutMapping("publish/{postId}")
     @PreAuthorize("hasRole('ROLE_CHIEF_EDITOR')")
     public ResponseEntity<?> publishPost(@PathVariable long postId,
@@ -48,6 +55,7 @@ public class PostController {
         return postService.publishPost(postId, publishedAt);
     }
 
+    @CacheEvict(value = "postByCategories", allEntries = true)
     @PutMapping("add-categories/{postId}") // aggiunge e/o modifica categorie associate ad un post
     @PreAuthorize("hasRole('ROLE_WRITER')")
     public ResponseEntity<?> addCategories(@PathVariable long postId,
@@ -55,6 +63,7 @@ public class PostController {
         return postService.addCategories(postId, categories);
     }
 
+    @CacheEvict(value = "postByCategories", allEntries = true)
     @PutMapping("remove-all-categories/{postId}") // elimina tutte le categorie associate ad un post
     @PreAuthorize("hasRole('ROLE_WRITER')")
     public ResponseEntity<?> removeAllCategories(@PathVariable long postId) {
@@ -76,9 +85,11 @@ public class PostController {
         return postService.getPostDetail(postId, imagePosition);
     }
 
+    @Cacheable("postByCategories") // Da usare con attenzione perché con un altra stessa chiamata
     @GetMapping("public/get-posts-by-category")
     public ResponseEntity<?> getPostByCategory(@RequestParam String categoryName,
                                                @RequestParam(defaultValue = "HDR") String imagePosition) {
+        log.info("\n\n---------------------- POST BY CATEGORIES ----------------------\n\n");
         return postService.getPostByCategory(categoryName, imagePosition);
     }
 
