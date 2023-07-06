@@ -28,11 +28,4 @@ public class ReportAuthorRating {
         this.postWritten = postWritten;
         this.actually = actually;
     }
-//
-//    public ReportAuthorRating(User author, double average, byte postWritten, YearMonth annoMese) {
-//        this.author = author;
-//        this.average = average;
-//        this.postWritten = postWritten;
-//        this.annoMese = annoMese;
-//    }
 }

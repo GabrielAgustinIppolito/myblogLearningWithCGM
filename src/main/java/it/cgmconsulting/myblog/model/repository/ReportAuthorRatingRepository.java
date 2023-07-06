@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,18 +28,20 @@ public interface ReportAuthorRatingRepository extends JpaRepository<ReportAuthor
 //    GROUP BY p.author;        <-- count sbagliata
     @Query(value = """
                    SELECT new it.cgmconsulting.myblog.model.data.payload.response.ReportAuthorRatingResponse(
-                   r.ratingId.post.author.id,
-                   ROUND(AVG(r.rate),2),
+                   p.author.id,
+                   p.author.username,
+                   COALESCE(ROUND(AVG(r.rate),2), 0.0),
                     (
                         SELECT COUNT(p.id)
                         FROM Post p
                         WHERE p.author.id = r.ratingId.post.author.id
                         GROUP BY p.author.id
                     )
-                   ) FROM Rating r
-                   WHERE r.ratingId.post.publishedAt BETWEEN :start AND :end
-                   AND r.ratingId.post.publishedAt IS NOT NULL AND r.ratingId.post.publishedAt < :now
-                   GROUP BY r.ratingId.post.author.id
+                   ) FROM Post p
+                   LEFT JOIN Rating r ON p.id = r.ratingId.post.id
+                   WHERE r.updatedAt BETWEEN :start AND :end
+                   AND p.publishedAt IS NOT NULL AND p.publishedAt < :now
+                   GROUP BY p.author.id
                    """)
 //                   COUNT(r.ratingId.post.author.id)
 //    INNER JOIN Post p ON r.ratingId.post.id = p.id

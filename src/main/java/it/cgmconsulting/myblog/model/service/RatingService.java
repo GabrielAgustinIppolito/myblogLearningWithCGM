@@ -38,7 +38,7 @@ public class RatingService {
     public ResponseEntity<?> getBestMonthlyAuthors() {
         List<ReportAuthorRatingResponse> r = reportRepository.findAll().stream().
                 map(x -> new ReportAuthorRatingResponse(x.getId(), x.getAuthor().getId(),
-                        x.getAverage(), x.getPostWritten(),x.getActually())).toList();
+                        x.getAuthor().getUsername(), x.getAverage(), x.getPostWritten(),x.getActually())).toList();
 //        private long id;
 //        private long authorId;
 //        private double average;
